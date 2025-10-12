@@ -1,38 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-function _info() {
-	echo "${@}" >&2
-}
-
-## _abspath converts a path (file or directory) to an absolute path.
-## Arguments:
-##   $1 - relative or absolute path
-## Returns:
-##   absolute path, or empty string if path does not exist
-function _abspath() {
-    local _path="${1}"
-
-    if [[ ! -e "${_path}" ]]; then
-        echo ""
-        return 0
-    fi
-
-    if [[ -d "${_path}" ]]; then
-        (cd "${_path}" && pwd)
-        return 0
-    fi
-
-    local _dir
-    _dir="$(cd "$(dirname "${_path}")" && pwd)"
-    echo "${_dir}/$(basename "${_path}")"
-}
-
-function _script_dir() {
-	local _script_dir
-	_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-	echo "${_script_dir}"
-}
+source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 ## _install creates symlinks pointing to files/directories at the home directory.
 ## Arguments:
@@ -89,57 +58,34 @@ function _uninstall() {
 	_info "✅ All symlinks removed!"
 }
 
-## _normalize_target converts a given path to an absolute path.
-## and returns an empty string if it should be excluded (., .., .git)
-## Arguments:
-##   $1 - path to normalize
-## Returns:
-##   absolute path, or empty string if excluded
-function _normalize_target() {
-    local _path="${1}"
-    local _basename
-    _basename="$(basename "${_path}")"
-
-    if [[ "${_basename}" == "." || "${_basename}" == ".." || "${_basename}" == ".git" ]]; then
-        echo ""
-        return 0
-    fi
-
-    echo "$(_abspath "${_path}")"
-}
-
 function _show_help() {
-	local _files=()
-	while IFS= read -r _file; do
-		_files+=("${_file}")
-	done < <(_target_files)
-
-	echo "Usage: ${0} [-h] [-f] [install|uninstall]"
+	echo "Usage: ${0} install|uninstall -t|--target <targets> [-h|--help] [-f|--force]"
 	echo ""
 	echo "Commands:"
-	echo "  install   Creates symlinks at $HOME"
-	echo "  uninstall Removes symlinks at $HOME"
-	echo "Target files:"
-	echo "$(printf -- "  - %s\n" "${_files[@]}")"
-	echo "Options:"
-	echo "  -h        Shows this help message"
-	echo "  -f        Forcibly overwrites exsiting files or directories when creating symlinkns (install only)"
-	echo "  -t        Specifies the target files or directories to be replaced with symlinks"
+	echo "  install      Creates symlinks at $HOME"
+	echo "  uninstall    Removes symlinks at $HOME"
+	echo "Required:"
+	echo "  -t, --target Specifies the target files or directories to be replaced with symlinks"
+	echo "               ., .., and .git are excluded for the target files or directories"
+	echo "               You can use path/to/dotfiles/.* for all dotfiles in the directory"
+	echo "Optional:"
+	echo "  -h, --help   Shows this help message"
+	echo "  -f, --force  Forcibly overwrites existing files or directories when creating symlinks (install only)"
 }
 
 function main() {
 	local _force=0 _help=0 _targets=() _parsing_target=0 _subcommand=""
 	while [[ "${#}" -gt 0 ]]; do
 		case "${1}" in
-		-h)
+		-h | --help)
 			_parsing_target=0
 			_help=1
 			;;
-		-f)
+		-f | --force)
 			_parsing_target=0
 			_force=1
 			;;
-		-t)
+		-t | --target)
 			_parsing_target=1
 			;;
 		install | uninstall)
@@ -148,12 +94,13 @@ function main() {
 			;;
 		*)
 			if [[ "${_parsing_target}" -eq 1 ]]; then
-                local _normalized="$(_normalize_target "${1}")"
-                if [[ -n "${_normalized}" ]]; then
-                    _targets+=("${_normalized}")
-                fi
+				local _normalized="$(_normalize_target "${1}")"
+				if [[ -n "${_normalized}" ]]; then
+					_targets+=("${_normalized}")
+				fi
 			else
 				_info "invalid args: ${1}"
+				_show_help
 				return 1
 			fi
 			;;
@@ -167,8 +114,8 @@ function main() {
 	fi
 
 	if [[ "${#_targets[@]}" -eq 0 ]]; then
-        _info "no targets specified; use -t to specifiy target files"
-        return 1
+		_info "no targets specified; use -t to specifiy target files"
+		return 1
 	fi
 
 	(
