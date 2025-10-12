@@ -1,5 +1,9 @@
 # setup-dotfiles
-`setup.sh` creates symlinks (pointing to dotfiles) to `$HOME`.
+**setup-dotfiles** is a script to create/delete symlinks (pointing to dotfiles) at `$HOME`.
+It is assumed that you have a dotfiles directory that has dotfiles.
+You can specifiy that directory to create symlinks at `$HOME`.
+
+## setup.sh
 
 You can see how to use that command:
 ```bash
@@ -7,7 +11,7 @@ You can see how to use that command:
 ```
 
 `install` creates symlinks.
-`.`, `..`, `.git` are excluded for this specification.
+`.`, `..`, and `.git` are excluded for this specification.
 Use `-h` to see the help message for detail.
 ```bash
 ./setup.sh install -t path/to/dotfiles/.*
