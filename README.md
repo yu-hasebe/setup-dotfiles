@@ -3,7 +3,7 @@
 It is assumed that you have a dotfiles directory that has dotfiles.
 You can specify that directory to create symlinks at `$HOME`.
 
-<img width="676" height="527" alt="Screenshot 2025-10-12 at 19 52 32" src="https://github.com/user-attachments/assets/c22a7adb-a8a8-419f-b208-68973a8ae3fc" />
+<img width="689" height="585" alt="Screenshot 2025-10-21 at 21 01 18" src="https://github.com/user-attachments/assets/233a725f-0d29-478e-90f4-0d52f30338e5" />
 
 ## setup.sh
 
