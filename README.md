@@ -7,23 +7,21 @@ You can specifiy that directory to create symlinks at `$HOME`.
 
 You can see how to use that command:
 ```bash
-./setup.sh -h
+./setup.sh --help
 ```
 
 `install` creates symlinks.
 `.`, `..`, and `.git` are excluded for this specification.
-Use `-h` to see the help message for detail.
 ```bash
-./setup.sh install -t path/to/dotfiles/.*
+./setup.sh install --target path/to/dotfiles/.*
 ```
 
-`-f` option overwrites the existing files.
-Use `-h` to see the help message for detail.
+`--force` option overwrites the existing files.
 ```bash
-./setup.sh install -t path/to/dotfiles/.* -f
+./setup.sh install --target path/to/dotfiles/.* --force
 ```
 
 `uninstall` deletes symlinks.
 ```bash
-./setup.sh uninstall -t path/to/dotfiles/.*
+./setup.sh uninstall --target path/to/dotfiles/.*
 ```
